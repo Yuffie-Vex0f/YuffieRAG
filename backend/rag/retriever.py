@@ -7,8 +7,16 @@ from backend.config import settings
 
 @lru_cache(maxsize=1)
 def get_embeddings():
-    """单例：加载 Embedding 模型（本地或 API）"""
-    if settings.embedding_provider == "local":
+    """单例：根据配置加载 Embedding 模型
+    
+    EMBEDDING_PROVIDER 取值：
+      - local: 本地 sentence-transformers（HuggingFace 模型，如 bge / Qwen3）
+      - dashscope: 阿里云 DashScope Embedding API（需要 DASHSCOPE_API_KEY）
+      - openai: OpenAI Embedding API（需要 OPENAI_API_KEY）
+    """
+    provider = settings.embedding_provider
+
+    if provider == "local":
         from langchain_community.embeddings import HuggingFaceEmbeddings
         return HuggingFaceEmbeddings(
             model_name=settings.embedding_model,
@@ -18,12 +26,26 @@ def get_embeddings():
                 "batch_size": 32,
             },
         )
-    else:
+
+    elif provider == "dashscope":
+        from langchain_community.embeddings import DashScopeEmbeddings
+        return DashScopeEmbeddings(
+            model=settings.embedding_model,  # 例如 "text-embedding-v3"
+            dashscope_api_key=settings.dashscope_api_key,
+        )
+
+    elif provider == "openai":
         from langchain_openai import OpenAIEmbeddings
         return OpenAIEmbeddings(
-            model="text-embedding-3-small",
+            model=settings.embedding_model,  # 例如 "text-embedding-3-small"
             openai_api_key=settings.openai_api_key,
             base_url=settings.openai_base_url,
+        )
+
+    else:
+        raise ValueError(
+            f"不支持的 embedding_provider: {provider}。"
+            f"可选值: local | dashscope | openai"
         )
 
 
