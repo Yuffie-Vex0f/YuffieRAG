@@ -10,6 +10,7 @@ services:
       - ./data/uploads:/app/uploads
       - ./data/chroma:/app/.chroma
       - ./data:/app/data
+      - ./model-cache:/root/.cache
     env_file:
       - .env
     restart: unless-stopped

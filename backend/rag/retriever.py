@@ -58,4 +58,9 @@ def retrieve(query: str, doc_id: str = None) -> List[Document]:
 def delete_document(doc_id: str):
     """从向量库删除指定文档的所有分块"""
     vectorstore = get_vectorstore()
-    vectorstore.delete(where={"doc_id": doc_id})
+    # 新版 chromadb 不再支持直接 where 删除，需要先查到 ids 再删
+    collection = vectorstore._collection
+    results = collection.get(where={"doc_id": doc_id})
+    ids = results.get("ids", [])
+    if ids:
+        collection.delete(ids=ids)

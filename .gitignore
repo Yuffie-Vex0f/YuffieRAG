@@ -10,3 +10,32 @@ frontend/dist/
 .DS_Store
 *.egg-info/
 .venv/
+
+# 项目数据（运行时生成）
+data/
+.chroma/
+uploads/
+*.db
+*.sqlite
+*.sqlite3
+
+# 模型缓存（巨大！）
+model-cache/
+.cache/
+
+# 打包文件
+*.tar.gz
+*.zip
+
+# 编辑器
+.vscode/
+.idea/
+
+# 日志
+*.log
+logs/
+
+# 临时文件
+*.bak
+*.swp
+*.tmp
