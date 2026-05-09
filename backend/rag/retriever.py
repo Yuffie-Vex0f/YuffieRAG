@@ -28,11 +28,19 @@ def get_embeddings():
 
 
 def get_vectorstore(collection_name: str = "default") -> Chroma:
-    """获取 ChromaDB 集合"""
+    """获取 ChromaDB 集合（显式关闭 telemetry 提升性能）"""
+    import chromadb
+    from chromadb.config import Settings as ChromaSettings
+
+    client = chromadb.PersistentClient(
+        path=settings.chroma_dir,
+        settings=ChromaSettings(anonymized_telemetry=False),
+    )
+
     return Chroma(
+        client=client,
         collection_name=collection_name,
         embedding_function=get_embeddings(),
-        persist_directory=settings.chroma_dir,
     )
 
 
