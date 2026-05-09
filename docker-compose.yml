@@ -1,0 +1,15 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: local-doc-qa
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data/uploads:/app/uploads
+      - ./data/chroma:/app/.chroma
+      - ./data:/app/data
+    env_file:
+      - .env
+    restart: unless-stopped

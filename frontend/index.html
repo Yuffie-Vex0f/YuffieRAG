@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>文档问答助手</title>
+    <style>
+      :root {
+        /* —— 字体栈 ——
+           西文优先 Inter / SF / Segoe，中文优先苹方 / 鸿蒙 / 微软雅黑，
+           等宽数字走 SF Mono / JetBrains Mono / Menlo */
+        --font-sans:
+          -apple-system, BlinkMacSystemFont,
+          "Inter", "Segoe UI", Roboto,
+          "PingFang SC", "HarmonyOS Sans SC", "Microsoft YaHei",
+          "Hiragino Sans GB", "Source Han Sans SC", "Noto Sans CJK SC",
+          sans-serif;
+        --font-mono:
+          "SF Mono", "JetBrains Mono", "Fira Code", "Menlo",
+          Consolas, "Liberation Mono", monospace;
+
+        /* —— 文本配色（提高对比度，原 #888/#999/#bbb 偏灰）—— */
+        --text-primary: #1a1a1f;
+        --text-secondary: #5a5a66;
+        --text-tertiary: #8a8a96;
+        --text-placeholder: #b5b5c0;
+
+        /* —— 主色（保留原配色基调）—— */
+        --accent: #5b50d6;
+        --accent-soft: #f1efff;
+        --accent-border: #c7c2f5;
+
+        --border: #e8e8ec;
+        --border-soft: #f0f0f3;
+        --bg: #f7f7fa;
+        --bg-elevated: #ffffff;
+      }
+
+      *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html { font-size: 16px; }
+
+      body {
+        font-family: var(--font-sans);
+        font-size: 14px;
+        line-height: 1.6;
+        color: var(--text-primary);
+        background: var(--bg);
+
+        /* 字体平滑：HiDPI 屏幕下细化字形 */
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+
+        /* 中英文混排时给汉字留一点呼吸感 */
+        letter-spacing: 0.01em;
+
+        /* 启用常用 OpenType 特性：kerning、连字、上下文替换 */
+        font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+      }
+
+      /* —— 数字等宽：用于徽章、页码、计数 —— */
+      .tnum {
+        font-feature-settings: "tnum" 1;
+        font-variant-numeric: tabular-nums;
+      }
+
+      /* —— 文本选区：用主题色而非默认蓝 —— */
+      ::selection {
+        background: var(--accent-soft);
+        color: var(--accent);
+      }
+
+      /* —— 自定义滚动条：纤细、安静 —— */
+      ::-webkit-scrollbar { width: 8px; height: 8px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.12);
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.22); }
+      * {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(0, 0, 0, 0.12) transparent;
+      }
+
+      /* —— 表单控件继承字体（原 textarea 走浏览器默认字）—— */
+      button, input, textarea {
+        font-family: inherit;
+        font-feature-settings: inherit;
+        letter-spacing: inherit;
+        color: inherit;
+      }
+
+      ::placeholder {
+        color: var(--text-placeholder);
+        opacity: 1;
+      }
+
+      /* —— 多行省略工具类 —— */
+      .clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      /* —— 长 URL / 英文长串自动断行 —— */
+      .wrap-anywhere {
+        overflow-wrap: anywhere;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
