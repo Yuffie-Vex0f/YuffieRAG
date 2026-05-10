@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 const s = {
   wrap: { flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' },
@@ -18,10 +20,9 @@ const s = {
     padding: '12px 16px',
     borderRadius: role === 'user' ? '14px 14px 4px 14px' : '14px 14px 14px 4px',
     fontSize: 14,
-    /* 中文气泡用 1.75 行高，更松弛、更易读 */
     lineHeight: 1.75,
-    /* 保留换行；长 URL/英文长串自动断行，避免撑破气泡 */
-    whiteSpace: 'pre-wrap',
+    // user 用 pre-wrap 保留换行；assistant 让 markdown 自己处理
+    whiteSpace: role === 'user' ? 'pre-wrap' : 'normal',
     overflowWrap: 'anywhere',
     wordBreak: 'break-word',
     background: role === 'user' ? 'var(--accent)' : 'var(--bg-elevated)',
@@ -84,6 +85,7 @@ const s = {
     resize: 'none',
     background: 'var(--bg)',
     transition: 'border-color 0.15s, background 0.15s',
+    fontFamily: 'inherit',
   },
   btn: (disabled) => ({
     padding: '10px 22px',
@@ -99,12 +101,6 @@ const s = {
     flexShrink: 0,
     height: 'fit-content',
   }),
-  hint: {
-    fontSize: 11,
-    color: 'var(--text-tertiary)',
-    padding: '0 20px 10px',
-    background: 'var(--bg-elevated)',
-  },
   empty: {
     flex: 1, display: 'flex', flexDirection: 'column',
     alignItems: 'center', justifyContent: 'center',
@@ -113,6 +109,105 @@ const s = {
   },
   emptyTitle: { fontSize: 15, color: 'var(--text-secondary)', fontWeight: 500 },
   emptySub: { fontSize: 13, color: 'var(--text-tertiary)' },
+}
+
+// Markdown 渲染组件（带样式覆写，适配气泡里的紧凑布局）
+function MarkdownContent({ content }) {
+  return (
+    <ReactMarkdown
+      remarkPlugins={[remarkGfm]}
+      components={{
+        // 段落（不要外边距，避免气泡里上下空白过多）
+        p: ({ children }) => (
+          <p style={{ margin: '0 0 8px 0' }}>{children}</p>
+        ),
+        // 列表
+        ul: ({ children }) => (
+          <ul style={{ margin: '0 0 8px 0', paddingLeft: 20 }}>{children}</ul>
+        ),
+        ol: ({ children }) => (
+          <ol style={{ margin: '0 0 8px 0', paddingLeft: 20 }}>{children}</ol>
+        ),
+        li: ({ children }) => (
+          <li style={{ margin: '0 0 4px 0' }}>{children}</li>
+        ),
+        // 多行代码块
+        pre: ({ children }) => (
+          <pre style={{
+            background: 'rgba(0,0,0,0.05)',
+            padding: 12,
+            borderRadius: 6,
+            overflow: 'auto',
+            fontSize: 12.5,
+            lineHeight: 1.5,
+            margin: '4px 0 8px 0',
+          }}>
+            {children}
+          </pre>
+        ),
+        // 行内代码
+        code: ({ inline, children, ...props }) => inline ? (
+          <code style={{
+            background: 'rgba(0,0,0,0.06)',
+            padding: '1px 6px',
+            borderRadius: 4,
+            fontSize: '0.92em',
+            fontFamily: 'ui-monospace, SF Mono, Consolas, monospace',
+          }} {...props}>
+            {children}
+          </code>
+        ) : <code {...props}>{children}</code>,
+        // 链接
+        a: ({ href, children }) => (
+          <a href={href} target="_blank" rel="noopener noreferrer"
+             style={{ color: 'var(--accent)', textDecoration: 'underline' }}>
+            {children}
+          </a>
+        ),
+        // 标题（气泡里不需要太大）
+        h1: ({ children }) => <h3 style={{ margin: '8px 0 4px 0', fontSize: 16, fontWeight: 600 }}>{children}</h3>,
+        h2: ({ children }) => <h3 style={{ margin: '8px 0 4px 0', fontSize: 15, fontWeight: 600 }}>{children}</h3>,
+        h3: ({ children }) => <h4 style={{ margin: '6px 0 4px 0', fontSize: 14, fontWeight: 600 }}>{children}</h4>,
+        // 表格
+        table: ({ children }) => (
+          <div style={{ overflow: 'auto', margin: '4px 0 8px 0' }}>
+            <table style={{ borderCollapse: 'collapse', fontSize: 13 }}>
+              {children}
+            </table>
+          </div>
+        ),
+        th: ({ children }) => (
+          <th style={{
+            border: '1px solid var(--border)',
+            padding: '4px 8px',
+            background: 'var(--border-soft)',
+            textAlign: 'left',
+          }}>
+            {children}
+          </th>
+        ),
+        td: ({ children }) => (
+          <td style={{ border: '1px solid var(--border)', padding: '4px 8px' }}>
+            {children}
+          </td>
+        ),
+        // 引用块
+        blockquote: ({ children }) => (
+          <blockquote style={{
+            borderLeft: '3px solid var(--border)',
+            paddingLeft: 12,
+            margin: '4px 0 8px 0',
+            color: 'var(--text-secondary)',
+          }}>
+            {children}
+          </blockquote>
+        ),
+        // 加粗 / 斜体（用默认即可，不需要覆写）
+      }}
+    >
+      {content}
+    </ReactMarkdown>
+  )
 }
 
 export default function ChatPanel({ docId }) {
@@ -193,6 +288,14 @@ export default function ChatPanel({ docId }) {
     }
   }
 
+  const handleKeyDown = (e) => {
+    // Enter 发送，Shift+Enter 换行；中文输入法选词时不发送
+    if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && !e.nativeEvent.isComposing) {
+      e.preventDefault()
+      send()
+    }
+  }
+
   const focusedInputStyle = focused
     ? { ...s.input, borderColor: 'var(--accent-border)', background: '#fff',
         boxShadow: '0 0 0 3px var(--accent-soft)' }
@@ -214,7 +317,11 @@ export default function ChatPanel({ docId }) {
             {messages.map((msg, i) => (
               <div key={i} style={s.msgBlock(msg.role)}>
                 <div style={s.bubble(msg.role)}>
-                  {msg.content}
+                  {msg.role === 'assistant' ? (
+                    <MarkdownContent content={msg.content} />
+                  ) : (
+                    msg.content
+                  )}
                   {msg.streaming && <span style={s.caret} />}
                 </div>
                 {msg.role === 'assistant' && msg.sources?.length > 0 && (
@@ -240,12 +347,12 @@ export default function ChatPanel({ docId }) {
         <textarea
           style={focusedInputStyle}
           rows={2}
-          placeholder="输入问题，按 Ctrl + Enter 发送…"
+          placeholder="输入问题，按 Enter 发送，Shift + Enter 换行…"
           value={input}
           onChange={e => setInput(e.target.value)}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
-          onKeyDown={e => { if (e.key === 'Enter' && e.ctrlKey) send() }}
+          onKeyDown={handleKeyDown}
         />
         <button style={s.btn(loading || !input.trim())}
                 onClick={send}
