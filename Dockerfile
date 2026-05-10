@@ -35,8 +35,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # 先装 Python 依赖（同样利用缓存）
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt \
-    -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip install --no-cache-dir --timeout 600 -r requirements.txt \
+    -i https://pypi.tuna.tsinghua.edu.cn/simple \
+    --extra-index-url https://mirrors.aliyun.com/pypi/simple/
 # 拷后端代码
 COPY backend/ ./backend/
 
