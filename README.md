@@ -6,6 +6,7 @@ GitHub: https://github.com/Yuffie-Vex0f/YuffieRAG
 
 > 本项目由 [Claude](https://claude.ai)（Anthropic）协同完成。
 
+![YuffieRAG 界面演示](docs/screenshot.png)
 
 ## 技术栈
 
