@@ -1,6 +1,11 @@
-# 本地文档问答助手
+# YuffieRAG · 本地文档问答助手
 
-基于 RAG（检索增强生成）的本地文档 Q&A 系统。上传 PDF / DOCX / TXT，即可对话提问。
+基于 RAG（检索增强生成）的本地中文文档 Q&A 系统。上传 PDF / DOCX / TXT，即可对话提问，自动给出来源页码引用。
+
+GitHub: https://github.com/Yuffie-Vex0f/YuffieRAG
+
+> 本项目由 [Claude](https://claude.ai)（Anthropic）协同完成。
+
 
 ## 技术栈
 
@@ -20,8 +25,8 @@
 ### 1. 克隆项目
 
 ```bash
-git clone https://github.com/Yuffie-Vex0f/Yuffie.git
-cd Yuffie
+git clone https://github.com/Yuffie-Vex0f/YuffieRAG.git
+cd YuffieRAG
 ```
 
 ### 2. 配置环境变量
@@ -193,6 +198,14 @@ snapshot_download('BAAI/bge-base-zh-v1.5')
 ### 容器重建后模型丢了？
 
 `docker-compose.yml` 已配 `./model-cache:/root/.cache` volume 持久化，不会丢。如果丢了说明你删了 host 的 `./model-cache` 目录。
+
+## 致谢
+
+- [LangChain](https://github.com/langchain-ai/langchain) —— RAG 框架
+- [ChromaDB](https://github.com/chroma-core/chroma) —— 向量数据库
+- [BAAI/bge-base-zh-v1.5](https://huggingface.co/BAAI/bge-base-zh-v1.5) —— 中文 Embedding 模型
+- [Qwen Team](https://github.com/QwenLM/Qwen) —— Qwen3 Embedding & 通义千问 LLM
+- [Claude](https://claude.ai)（Anthropic）—— 全程协同开发
 
 ## License
 
